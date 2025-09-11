@@ -1,4 +1,5 @@
 from django.http import HttpResponse, HttpResponseNotFound
+from datetime import datetime
 
 
 """
@@ -13,10 +14,13 @@ from django.http import HttpResponse, HttpResponseNotFound
 """
 
 
-def get_month_title_by_number(month_number: int):
-    pass  # код писать тут
+def get_month_title_by_number(month_number: int) -> str|None:
+    if 1 <= month_number <= 12:
+        now_moment = datetime.now().replace(month=month_number)
+        return now_moment.strftime('%B')
+    return None
 
 
 def get_month_title_view(request, month_number: int):
-    # код писать тут
-    return HttpResponseNotFound('Месяца с таким номером не существует')
+    month_title = get_month_title_by_number(month_number)
+    return HttpResponse(month_title) if month_title else HttpResponseNotFound('Месяца с таким номером не существует')
