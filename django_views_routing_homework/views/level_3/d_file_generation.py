@@ -13,9 +13,24 @@
 Для проверки используйте браузер: когда ручка правильно работает, при попытке зайти на неё, браузер должен
 скачивать сгенерированный файл.
 """
+from faker import Faker
+from django.http import HttpResponse, HttpRequest, HttpResponseForbidden, HttpResponseNotAllowed
 
-from django.http import HttpResponse, HttpRequest
+
+def create_text_content(length: int):
+    text = Faker().text(max_nb_chars=length)
+    return text
 
 
 def generate_file_with_text_view(request: HttpRequest) -> HttpResponse:
-    pass  # код писать тут
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(permitted_methods=['GET'])
+    length = int(request.GET.get('length', 0))
+    if length < 5 or length > 256:
+        return HttpResponseForbidden()
+    content = create_text_content(length)
+
+    response = HttpResponse(content, content_type='text/plain; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="content_length_{length}.txt"'
+
+    return response
